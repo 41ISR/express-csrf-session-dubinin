@@ -2,12 +2,15 @@ import { useRef } from "react"
 import { useEffect } from "react"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { useAuthStore } from "../store/useAuthStore"
 
 const Index = () => {
     const navigate = useNavigate()
     const formRef = useRef(null)
-    const [clicks, setClicks] = useState(0)
+    const {user} = useAuthStore()
+    const [clicks, setClicks] = useState(user.clicks)
     const clickRef = useRef(null)
+
     useEffect(() => {
         const interval = setInterval(() => {
             formRef.current && handleSubmit()
@@ -19,6 +22,10 @@ const Index = () => {
         clickRef.current = clicks
     }, [clicks])
 
+    useEffect(() => {
+        setClicks(user.user.clicks)
+    }, [user])
+
     const handleClick = () => {
         setClicks((val) => val + 1)
     }
@@ -27,16 +34,33 @@ const Index = () => {
         navigate("/logout")
     }
 
-    const handleSubmit = () => {
-        console.log(clickRef.current)
+    const handleSubmit = async () => {
+        try {
+            const res = await fetch("https://bookish-train-g9prpvv6rjrcpv4p-3000.app.github.dev/click",
+            {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({clicks: clickRef.current})
+            }
+        )
+        const data = await res.json()
+        console.log(data)
+    } catch (error) {
+        console.error(error)
     }
+    } 
+    
     return (
         <div className="container">
 
             <div className="header">
                 <h1>🎮 Кликер Игра</h1>
                 <div className="user-info">
-                    <span><strong>Имя пользователя</strong></span>
+                    <span><strong>Vupsen2k</strong></span>
+
                     <button onClick={handleLogout} className="logout-btn">Выйти</button>
                 </div>
             </div>
@@ -55,22 +79,22 @@ const Index = () => {
                     <ol>
                         <li>
                             <span className="rank">#1</span>
-                            <span className="username">bob</span>
+                            <span className="username">Вупсен</span>
                             <span className="score">200 кликов</span>
                         </li>
                         <li>
                             <span className="rank">#2</span>
-                            <span className="username">alice</span>
+                            <span className="username">Пупсен</span>
                             <span className="score">150 кликов</span>
                         </li>
                         <li className="current-user">
                             <span className="rank">#3</span>
-                            <span className="username">you</span>
-                            <span className="score">42 клика</span>
+                            <span className="username">Vupsen2k</span>
+                            <span className="score">100 клика</span>
                         </li>
                         <li>
                             <span className="rank">#4</span>
-                            <span className="username">charlie</span>
+                            <span className="username">Баба Капа</span>
                             <span className="score">75 кликов</span>
                         </li>
                     </ol>
